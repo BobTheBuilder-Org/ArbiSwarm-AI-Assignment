@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Evidence-first Malaysian marketplace arbitrage analysis.">
+  <title>ArbiSwarm — Deal intelligence</title>
+  <link rel="stylesheet" href="/static/style.css?v=2.4.1">
+  <link rel="stylesheet" href="/static/copilot.css?v=3.0.1">
+  <link rel="stylesheet" href="/static/lens.css?v=2.5.1">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="ArbiSwarm home">
+      <span class="brand-mark" aria-hidden="true">AS</span>
+      <span>ArbiSwarm</span>
+    </a>
+    <div class="topbar-actions">
+      <button id="historyBtn" class="history-button" type="button" aria-controls="historyDrawer" aria-expanded="false">
+        <span class="history-icon" aria-hidden="true">↶</span>
+        History
+        <b id="historyCount" hidden>0</b>
+      </button>
+      <div class="system-state" id="systemState">
+        <span class="state-dot"></span>
+        <span>Checking system</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">EVIDENCE-FIRST RECOMMERCE</p>
+        <h1>Find the margin.<br><span>See the risk.</span></h1>
+        <p class="hero-text">Search Malaysian marketplaces at once, reject weak data, and let three focused agents turn the survivors into defensible buy decisions.</p>
+      </div>
+      <ol class="pipeline" aria-label="Analysis pipeline">
+        <li><span>01</span><div><strong>Ingest</strong><small>Real listing URLs only</small></div></li>
+        <li><span>02</span><div><strong>Inspect</strong><small>Text, photos, seller signals</small></div></li>
+        <li><span>03</span><div><strong>Decide</strong><small>Deterministic margin rules</small></div></li>
+      </ol>
+    </section>
+
+    <section class="search-shell" aria-labelledby="searchTitle">
+      <div class="search-heading">
+        <div>
+          <p class="section-label">NEW SEARCH</p>
+          <h2 id="searchTitle">Build a deal thesis</h2>
+        </div>
+        <div class="source-switch" role="radiogroup" aria-label="Data source">
+          <label><input type="radio" name="sourceMode" value="live" checked><span>Live market</span></label>
+          <label><input type="radio" name="sourceMode" value="demo"><span>Demo data</span></label>
+        </div>
+      </div>
+
+      <p id="sourceNote" class="source-note">Search local markets and optional eBay/Etsy sources. International prices are converted to RM; landed costs still need verification.</p>
+
+      <div id="marketplacePicker" class="marketplace-picker" aria-label="Marketplaces to search">
+        <label><input type="checkbox" name="marketplace" value="carousell" checked><span><i class="market-dot carousell"></i>Carousell</span></label>
+        <label><input type="checkbox" name="marketplace" value="lazada" checked><span><i class="market-dot lazada"></i>Lazada</span></label>
+        <label><input type="checkbox" name="marketplace" value="mudah" checked><span><i class="market-dot mudah"></i>Mudah</span></label>
+        <label><input type="checkbox" name="marketplace" value="shopee" checked><span><i class="market-dot shopee"></i>Shopee</span></label>
+        <label><input type="checkbox" name="marketplace" value="ebay"><span><i class="market-dot ebay"></i>eBay <small data-market-state="ebay">API setup</small></span></label>
+        <label><input type="checkbox" name="marketplace" value="etsy"><span><i class="market-dot etsy"></i>Etsy <small data-market-state="etsy">API setup</small></span></label>
+      </div>
+
+      <form id="searchForm" class="search-form">
+        <label class="field field-query">
+          <span>What are you hunting?</span>
+          <div class="query-with-lens"><input id="query" name="query" type="search" value="Labubu Macaron" placeholder="A name, a model, or a photo…" minlength="2" maxlength="120" required autocomplete="off"><button class="lens-camera" id="openLens" type="button" title="Search by photo" aria-label="Open Arbi Lens photo search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7h4l2-3h4l2 3h4v13H4z"/><circle cx="12" cy="13" r="4"/></svg></button></div>
+        </label>
+        <div class="field resale-field">
+          <span>Resale model</span>
+          <div class="pricing-control">
+            <div class="pricing-switch" role="radiogroup" aria-label="Resale pricing mode">
+              <label><input type="radio" name="pricingMode" value="auto" checked><span>Auto market</span></label>
+              <label><input type="radio" name="pricingMode" value="manual"><span>Manual</span></label>
+            </div>
+            <div id="autoResaleState" class="auto-resale-state"><b>Live median</b><small>with confidence range</small></div>
+            <div id="manualResaleWrap" class="money-input" hidden><b>RM</b><input id="resale" name="resale" type="number" value="90" min="1" step="1"></div>
+          </div>
+        </div>
+        <label class="field">
+          <span>Budget · optional</span>
+          <div class="money-input"><b>RM</b><input id="maxPrice" name="maxPrice" type="number" placeholder="No limit yet" min="1" step="1"></div>
+        </label>
+        <button id="startBtn" class="primary-button" type="submit">
+          <span>Run analysis</span><i aria-hidden="true">→</i>
+        </button>
+        <div class="match-settings"><label for="matchMode">Product matching</label><select id="matchMode"><option value="exact">Exact product &amp; variant</option><option value="related">Include related variants</option></select><small>Set numbers, seasons and requested sizes must match. Related items keep separate valuations.</small></div>
+      </form>
+      <button id="lensInvite" class="lens-invite" type="button"><span class="lens-mini-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="12" cy="12" r="6.5"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/></svg></span><span>Don't know the name? <b>Start with a photo.</b></span><span aria-hidden="true">↗</span></button>
+      <div id="lensSearchReference" class="lens-search-reference" hidden></div>
+    </section>
+
+    <section id="runPanel" class="run-panel" hidden aria-live="polite">
+      <div class="scan-orb" aria-hidden="true"><i></i><i></i><i></i><b>AS</b></div>
+      <div class="run-content">
+        <p class="run-kicker"><span></span> LIVE MARKET INTELLIGENCE</p>
+        <div class="run-copy">
+          <div><strong id="runTitle">Opening marketplace channels</strong><p id="runText">Preparing verified source connections.</p></div>
+          <b id="runPercent" class="run-percent">12%</b>
+        </div>
+        <div id="runLog" class="run-log" aria-hidden="true"></div>
+        <div class="run-track"><span id="runProgress"></span></div>
+      </div>
+    </section>
+
+    <section id="errorPanel" class="error-panel" hidden role="alert">
+      <div><span class="error-icon">!</span></div>
+      <div><strong id="errorTitle">Search could not run</strong><p id="errorText"></p></div>
+      <button id="useDemoBtn" type="button">Try demo data</button>
+    </section>
+
+    <section id="sourceWarnings" class="source-warnings" hidden aria-live="polite">
+      <strong>Some marketplaces could not be searched</strong>
+      <ul id="sourceWarningList"></ul>
+    </section>
+
+    <section id="summary" class="summary" hidden aria-label="Search summary">
+      <article><small>SOURCE RESULTS</small><strong id="totalMetric">0</strong></article>
+      <article><small>ANALYZED</small><strong id="keptMetric">0</strong></article>
+      <article><small>BUY SIGNALS</small><strong id="buyMetric">0</strong></article>
+      <article><small>BEST PROFIT</small><strong id="profitMetric">—</strong></article>
+    </section>
+
+    <!-- app.js fills this board after a search or a saved-history restore. -->
+    <section id="resultsSection" class="results-section" hidden>
+      <div class="results-heading">
+        <div><p class="section-label">SWARM OUTPUT</p><h2 id="resultsTitle">Decision queue</h2></div>
+        <div class="results-heading-actions"><p id="resultsMeta"></p><div class="watch-control"><button id="watchSearchBtn" class="watch-button" type="button" aria-describedby="watchSearchStatus"><span class="watch-button-icon" aria-hidden="true">＋</span><span data-watch-label>Watch this search</span></button><span id="watchSearchStatus" class="watch-feedback" role="status" aria-live="polite" aria-atomic="true"></span></div></div>
+      </div>
+      <div id="sourceBar" class="source-bar" aria-label="Marketplace freshness"></div>
+      <div id="lensBoardReference" hidden></div>
+      <section class="board-filters" aria-label="Filter saved search results">
+        <div class="filter-heading"><span>Refine your board</span><small>No new crawl</small><button id="resetFilters" type="button">Reset</button></div>
+        <div id="marketFilters" class="market-filters" role="group" aria-label="Marketplace filters"></div>
+        <div class="filter-options"><label>Product type<select id="variantFilter"><option value="">All product types</option></select></label><label>Asking price up to RM<input id="viewMaxPrice" type="number" min="0.01" max="1000000" step="0.01" placeholder="Any saved price"></label><p id="filterStatus" role="status" aria-live="polite"></p></div>
+      </section>
+      <p id="resultsExplanation" class="board-explanation"></p>
+      <div id="results" class="results-grid"></div>
+      <details id="discardedPanel" class="discarded" hidden>
+        <summary><span id="discardedCount">0 listings filtered out</span><i>View reasons</i></summary>
+        <ul id="discardedList"></ul>
+      </details>
+    </section>
+  </main>
+
+  <!-- History and watchlists are saved in this browser, not in a cloud account. -->
+  <div id="historyScrim" class="history-scrim" hidden></div>
+  <aside id="historyDrawer" class="history-drawer" aria-hidden="true" aria-labelledby="historyTitle" inert>
+    <div class="history-header">
+      <div>
+        <p class="section-label">LOCAL SNAPSHOTS</p>
+        <h2 id="historyTitle">Search history</h2>
+      </div>
+      <button id="closeHistoryBtn" class="icon-button" type="button" aria-label="Close history">×</button>
+    </div>
+    <div class="saved-tabs" role="tablist" aria-label="Saved items">
+      <button class="saved-tab active" type="button" data-saved-tab="history">History</button>
+      <button class="saved-tab" type="button" data-saved-tab="watchlists">Watchlists <b id="watchCount" hidden>0</b></button>
+    </div>
+    <section id="historyPane" class="saved-pane">
+      <p class="history-intro">Open a saved analysis instantly. No marketplace request or AI call is made.</p>
+      <div id="historyList" class="history-list"></div>
+      <div id="historyEmpty" class="history-empty">
+        <span aria-hidden="true">↶</span>
+        <strong>No saved searches yet</strong>
+        <p>Your successful analyses will appear here.</p>
+      </div>
+      <button id="clearHistoryBtn" class="clear-history" type="button" hidden>Clear all history</button>
+    </section>
+    <section id="watchlistsPane" class="saved-pane" hidden>
+      <p class="history-intro">Run a saved market scan again and get an in-app alert when the best price drops or a new buy signal appears.</p>
+      <button id="addCurrentWatchBtn" class="add-watch-button" type="button" aria-describedby="watchSearchStatus"><span class="watch-button-icon" aria-hidden="true">＋</span><span data-watch-label>Watch current search</span></button>
+      <div id="watchlistList" class="history-list"></div>
+      <div id="watchlistEmpty" class="history-empty">
+        <span aria-hidden="true">◎</span>
+        <strong>No watchlists yet</strong>
+        <p>Run an analysis, then save it as a watchlist.</p>
+      </div>
+    </section>
+  </aside>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Ask Arbi gets the current board and selected offer from app.js. -->
+  <button id="copilotLauncher" class="copilot-launcher" type="button" aria-controls="copilotPanel" aria-expanded="false"><span class="copilot-spark">✦</span><span><b>Ask Arbi</b><small>Your search, in context</small></span><kbd>⌘ K</kbd></button>
+  <aside id="copilotPanel" class="copilot-panel" role="dialog" aria-labelledby="copilotTitle" hidden>
+    <header id="copilotDragArea" class="copilot-header">
+      <button id="copilotMove" class="copilot-spark" type="button" aria-label="Move chat: drag or use arrow keys; Home resets position" title="Drag to move · arrow keys also work">✦</button>
+      <div class="copilot-heading"><h2 id="copilotTitle">Ask Arbi</h2><small><i></i>Connected to your board</small></div>
+      <div class="copilot-window-controls">
+        <button id="fullscreenCopilot" class="chat-icon" type="button" aria-label="Enter fullscreen chat" aria-pressed="false" title="Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button>
+        <button id="closeCopilot" class="chat-icon" type="button" aria-label="Close chat" title="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+      </div>
+    </header>
+    <div class="copilot-context-shell">
+      <div class="copilot-context-row"><div id="copilotContext" class="copilot-context"></div><button id="copilotQuickActions" class="copilot-quick-actions" type="button" aria-expanded="false" aria-controls="copilotActionTray">Quick actions <span>⌄</span></button></div>
+      <div id="copilotSelection" class="copilot-selection" hidden><div id="selectedIdentity"></div><button class="chat-icon" type="button" aria-label="Clear selected listing">×</button></div>
+      <div id="copilotActionTray" class="copilot-action-tray" aria-hidden="true" inert><div><div id="copilotMenu" class="copilot-menu" aria-label="All workspace actions"></div></div></div>
+    </div>
+    <div id="lensChatReference" hidden></div>
+    <div id="copilotMessages" class="copilot-messages" role="log" aria-live="polite"><div id="copilotOverview" class="copilot-overview"></div></div>
+    <div id="copilotTools" class="copilot-tools" aria-label="Current search actions"></div>
+    <div id="copilotBudget" class="copilot-budget" hidden><label for="copilotBudgetValue">New purchase ceiling (RM)</label><div><input id="copilotBudgetValue" type="number" min="1" max="1000000" step="1"><button id="applyCopilotBudget" type="button">Use in message</button><button id="cancelCopilotBudget" type="button" aria-label="Cancel budget change">×</button></div></div>
+    <form id="copilotForm" class="copilot-composer"><button id="chatOpenLens" class="lens-chat-attach" type="button" title="Search with a photo" aria-label="Attach a reference photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m8 12 6-6a3 3 0 0 1 4 4l-8 8a5 5 0 0 1-7-7l9-9"/></svg></button><label class="sr-only" for="copilotInput">Message Arbi</label><textarea id="copilotInput" rows="1" maxlength="2000" placeholder="Ask about your search…" required></textarea><button id="copilotSend" type="submit" aria-label="Send message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 20V4m-7 7 7-7 7 7"/></svg></button></form>
+    <p id="copilotStatus" class="copilot-status" role="status">Choose a shortcut, review your message, then send.</p>
+  </aside>
+
+  <dialog id="selectionDialog" class="selection-dialog" aria-labelledby="selectionTitle">
+    <div class="selection-dialog-heading"><span class="section-label">REVIEW THIS LISTING?</span><button id="cancelSelection" class="icon-button" type="button" aria-label="Cancel listing selection">×</button></div>
+    <div id="selectionPreview"></div>
+    <p class="selection-note">Nothing has been sent. Confirm this item to make it the focus of your workspace.</p>
+    <button id="confirmSelection" class="selection-confirm" type="button">Use this item <span>→</span></button>
+  </dialog>
+
+  <dialog id="lensDialog" class="lens-dialog" aria-labelledby="lensTitle">
+    <div class="lens-dialog-inner">
+      <header class="lens-header"><span class="lens-brand"><i aria-hidden="true">⌖</i> ARBI LENS <small>PHOTO → POSSIBILITY</small></span><button id="closeLens" class="lens-icon-button" type="button" aria-label="Close Arbi Lens">×</button></header>
+      <div class="lens-layout">
+        <section class="lens-visual" aria-label="Reference photo">
+          <div id="lensDropzone" class="lens-dropzone" tabindex="0" role="button" aria-label="Choose or drop a product photo">
+            <div class="lens-aperture" aria-hidden="true"><span></span><svg viewBox="0 0 80 80" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 29V14h15m22 0h15v15M14 51v15h15m22 0h15V51"/><circle cx="40" cy="40" r="12"/><path d="M40 22v5m0 26v5M22 40h5m26 0h5"/></svg></div>
+            <strong>A photo is all it takes.</strong><p>Drop your inspiration here<br>or choose a photo to get started.</p><span class="lens-upload-pill">Choose photo <b>＋</b></span><small>JPG, PNG, WebP · up to 6 MB</small>
+          </div>
+          <div id="lensPhotoWorkspace" hidden>
+            <div class="lens-photo-topline"><span>YOUR REFERENCE</span><button id="lensReplace" type="button">Replace ↗</button></div>
+            <div id="lensCropStage" class="lens-crop-stage"><img id="lensPreview" alt="Your selected reference photo" draggable="false"><div id="lensCropBox" class="lens-crop-box" hidden><i></i><i></i><i></i><i></i><span>Selected area</span></div><div class="lens-scan-beam" aria-hidden="true"></div><span class="lens-corner tl"></span><span class="lens-corner tr"></span><span class="lens-corner bl"></span><span class="lens-corner br"></span></div>
+            <div class="lens-crop-tools"><span id="lensCropHint">Drag over the product to focus your search.</span><button id="lensResetCrop" type="button">Reset crop</button></div>
+            <details class="lens-accessible-crop"><summary>Precise crop controls</summary><div><label>Left<input data-crop-side="0" type="range" min="0" max="95" value="0"></label><label>Top<input data-crop-side="1" type="range" min="0" max="95" value="0"></label><label>Right<input data-crop-side="2" type="range" min="5" max="100" value="100"></label><label>Bottom<input data-crop-side="3" type="range" min="5" max="100" value="100"></label></div></details>
+            <div id="lensObjectChoices" class="lens-object-choices" aria-label="Detected objects"></div>
+          </div>
+          <input id="lensFile" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp">
+        </section>
+        <section class="lens-intelligence">
+          <div class="lens-steps" aria-label="Photo search steps"><span class="active" data-lens-step="0">01 <b>Upload</b></span><i></i><span data-lens-step="1">02 <b>Identify</b></span><i></i><span data-lens-step="2">03 <b>Compare</b></span></div>
+          <div id="lensWelcome" class="lens-view"><p class="lens-kicker">LESS TYPING. MORE FINDING.</p><h2 id="lensTitle">See it.<br><em>Find it.</em></h2><p class="lens-description">Turn something you love into a search worth exploring.</p><div class="lens-capabilities"><div><span>01</span><p><b>Find the product</b><small>Read visible details, labels and design.</small></p></div><div><span>02</span><p><b>Keep you in control</b><small>Confirm the name. Correct the details.</small></p></div><div><span>03</span><p><b>Compare the evidence</b><small>Check a small shortlist across your markets.</small></p></div></div></div>
+          <div id="lensScanning" class="lens-view" hidden><p class="lens-kicker"><span class="lens-live-dot"></span> GEMINI VISION</p><h3>Making sense<br>of your photo.</h3><p class="lens-description">Reading visible design, text and product details. Unclear details stay unclear.</p><div class="lens-scan-progress"><span></span></div><p class="lens-scan-caption">One recognition request · not searching marketplaces yet</p></div>
+          <div id="lensReview" class="lens-view" hidden><p class="lens-kicker">A STARTING POINT, NOT A GUESS TO HIDE.</p><div class="lens-confidence-row"><h3 id="lensIdentityName"></h3><span id="lensConfidence"></span></div><div id="lensObservations" class="lens-observations"></div><p id="lensUncertainty" class="lens-uncertainty"></p><label class="lens-query-label" for="lensQuery">SEARCH NAME <span>EDITABLE</span></label><input id="lensQuery" class="lens-query" type="text" maxlength="120" minlength="2"><div class="lens-mode-switch" role="group" aria-label="Photo matching goal"><button type="button" data-lens-mode="product" aria-pressed="true">Find this product</button><button type="button" data-lens-mode="similar" aria-pressed="false">Explore similar</button></div><p id="lensModeHint" class="lens-mode-hint">Prefer the identified product. Exact model and variant still need evidence.</p><button id="lensSearch" class="lens-search-button" type="button">Search selected markets <span>↗</span></button><p id="lensUsage" class="lens-usage"></p></div>
+          <div id="lensError" class="lens-inline-error" role="alert" hidden></div>
+          <button id="lensIdentify" class="lens-search-button" type="button" hidden>Identify this photo <span>✦</span></button>
+        </section>
+      </div>
+      <footer class="lens-footer"><span><i aria-hidden="true">◇</i> Your photo is sent to Gemini only when you press Identify. No photo is saved to history.</span><span>Appearance ≠ authenticity</span></footer>
+    </div>
+  </dialog>
+
+  <footer><span>ArbiSwarm</span><p>Decision support, not a guarantee of authenticity or profit.</p></footer>
+  <script src="/static/chat-state.js?v=3.2.1"></script>
+  <script src="/static/watch-state.js?v=1.0.0"></script>
+  <script src="/static/app.js?v=3.3.2"></script>
+  <script src="/static/lens.js?v=2.5.2"></script>
+</body>
+</html>
